@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
 //                    ListOfCompany(stockViewModel = stockViewModel)
 //                   ListOfCompany(stockViewModel = stockViewModel)
 //                    Testing(stockViewModel = stockViewModel)
+                    stockViewModel.getPrice("AMZN")
                 }
             }
         }
