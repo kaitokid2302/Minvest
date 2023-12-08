@@ -13,10 +13,9 @@ import kotlinx.coroutines.launch
 
 class StockViewModel(var db: CompanyNameDB): ViewModel(){
     var listCompany = db.getCompanyNameDAO().getAllName()
-    var count = mutableStateOf(0)
+    var price = mutableStateOf(0.0f)
     init{
         viewModelScope.launch {
-            db.getCompanyNameDAO().deleteTable()
             var sizeCompany = db.getCompanyNameDAO().getSize()
             if (sizeCompany == 0) {
                 var cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
@@ -51,11 +50,7 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
                 cur = Service.companyName(Service.provideRetrofit()).getPrice(symbol = symbol)
             }
             Log.d("price", cur.body()?.price.toString())
-        }
-    }
-    fun testingResponse() {
-        viewModelScope.launch {
-
+            price.value = cur.body()!!.price!!.toFloat()
         }
     }
 }

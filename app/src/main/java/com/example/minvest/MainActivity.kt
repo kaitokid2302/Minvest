@@ -62,14 +62,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-fun Testing(stockViewModel: StockViewModel){
-    for(i in 1..10){
-        stockViewModel.testingResponse()
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListOfCompany(stockViewModel: StockViewModel){
@@ -86,13 +78,4 @@ fun ListOfCompany(stockViewModel: StockViewModel){
             }
         }
     }
-}
-
-@Composable
-fun CustomDialog() {
-
-}
-@Composable
-fun test(){
-
 }
