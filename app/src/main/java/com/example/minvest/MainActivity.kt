@@ -55,17 +55,10 @@ class MainActivity : ComponentActivity() {
 //                    ListOfCompany(stockViewModel = stockViewModel)
 //                   ListOfCompany(stockViewModel = stockViewModel)
 //                    Testing(stockViewModel = stockViewModel)
+                    stockViewModel.getPrice("AMZN")
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun Testing(stockViewModel: StockViewModel){
-    for(i in 1..10){
-        stockViewModel.testingResponse()
     }
 }
 
@@ -85,13 +78,4 @@ fun ListOfCompany(stockViewModel: StockViewModel){
             }
         }
     }
-}
-
-@Composable
-fun CustomDialog() {
-
-}
-@Composable
-fun test(){
-
 }

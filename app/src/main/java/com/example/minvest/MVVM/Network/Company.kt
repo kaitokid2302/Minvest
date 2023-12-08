@@ -5,8 +5,9 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class Company(
-    val data: List<Daum>,
-    val status: String,
+    val price: String?,
+    val data: List<Daum>?,
+    val status: String?,
 )
 
 data class Daum(
