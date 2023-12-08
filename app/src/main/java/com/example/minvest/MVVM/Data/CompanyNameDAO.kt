@@ -19,5 +19,5 @@ interface CompanyNameDAO {
     suspend fun getSize(): Int
 
     @Query("delete from CompanyName")
-    suspend fun deleteTable()
+    suspend fun deleteTable()adsfdas
 }
