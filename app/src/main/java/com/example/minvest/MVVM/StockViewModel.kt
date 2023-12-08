@@ -21,7 +21,7 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     var count = mutableStateOf(0)
     init{
         viewModelScope.launch {
-            db.getCompanyNameDAO().deleteTable()
+//            db.getCompanyNameDAO().deleteTable()
             var sizeCompany = db.getCompanyNameDAO().getSize()
             if (sizeCompany == 0) {
                 var cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();

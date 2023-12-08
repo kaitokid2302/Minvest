@@ -9,15 +9,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.navigation.NavController
+import com.example.minvest.MVVM.StockViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun SearchField(modifier: Modifier){
+fun SearchField(modifier: Modifier, stockViewModel: StockViewModel, navController: NavController){
     var text by remember{
         mutableStateOf("")
     }
+    var keyBoardController = LocalSoftwareKeyboardController.current
     Row(modifier = modifier){
         OutlinedTextField(
             value = text,
@@ -25,8 +30,8 @@ fun SearchField(modifier: Modifier){
                 text = it
             },
             keyboardActions = KeyboardActions(
-                onDone = {
-
+                onDone ={
+                    keyBoardController?.hide()
                 }
             )
         )
