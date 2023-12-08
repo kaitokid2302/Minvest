@@ -1,7 +1,10 @@
 package com.example.minvest.MVVM
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.minvest.MVVM.Data.CompanyName
@@ -14,6 +17,7 @@ import kotlinx.coroutines.launch
 class StockViewModel(var db: CompanyNameDB): ViewModel(){
     var listCompany = db.getCompanyNameDAO().getAllName()
     var price = mutableStateOf(0.0f)
+    var currentCompanyName by mutableStateOf<CompanyName?>(null)
     init{
         viewModelScope.launch {
             var sizeCompany = db.getCompanyNameDAO().getSize()
@@ -51,6 +55,14 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             }
             Log.d("price", cur.body()?.price.toString())
             price.value = cur.body()!!.price!!.toFloat()
+        }
+    }
+    fun onSearch(keyboard: () -> Unit){
+        keyboard()
+    }
+    fun getCompany(symbol: String){
+        viewModelScope.launch {
+            currentCompanyName = db.getCompanyNameDAO().getCompany(symbol)
         }
     }
 }

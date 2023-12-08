@@ -16,6 +16,9 @@ interface CompanyNameDAO {
     @Query("select * from CompanyName")
     fun getAllName(): Flow<List<CompanyName>>
 
+    @Query("select * from CompanyName where symbol=:symbol limit 1")
+    suspend fun getCompany(symbol: String): CompanyName?
+
     @Query("select Count(*) from CompanyName")
     suspend fun getSize(): Int
 
