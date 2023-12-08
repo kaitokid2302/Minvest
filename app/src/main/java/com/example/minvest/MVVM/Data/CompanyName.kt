@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class CompanyName(
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey(autoGenerate = true)
+    var id:Int = 0,
     var symbol: String,
     val name: String,
     val currency: String,

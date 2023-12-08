@@ -34,9 +34,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.minvest.MVVM.Data.CompanyName
 import com.example.minvest.MVVM.Data.CompanyNameDB
 import com.example.minvest.MVVM.StockViewModel
+import com.example.minvest.composable.FirstScreen
+import com.example.minvest.composable.SecondScreen
 import com.example.minvest.ui.theme.MinvestTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,26 +57,18 @@ class MainActivity : ComponentActivity() {
                     var context = LocalContext.current
                     var db = CompanyNameDB.getInstance(context)
                     var stockViewModel = StockViewModel(db)
-                    stockViewModel.getPrice("AMZN")
-                }
-            }
-        }
-    }
-}
+                    stockViewModel.getCompanytoDisplay("")
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ListOfCompany(stockViewModel: StockViewModel){
-    var text by remember {
-        mutableStateOf("")
-    }
-    Column {
-        Row {
-            OutlinedTextField(value = text, onValueChange = {
-                text = it
-            })
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Default.Search, contentDescription = null)
+                    var navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = "First Screen"){
+                        composable(route = "First Screen"){
+                            FirstScreen(stockViewModel = stockViewModel, navController = navController)
+                        }
+                        composable(route = "Second Screen"){
+                            SecondScreen(stockViewModel = stockViewModel, navController = navController)
+                        }
+                    }
+                }
             }
         }
     }

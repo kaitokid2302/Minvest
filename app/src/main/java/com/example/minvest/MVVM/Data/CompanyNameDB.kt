@@ -5,9 +5,11 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CompanyName::class], version = 3)
+@Database(entities = [CompanyName::class, Invest::class, Transaction::class], version = 8)
 abstract class CompanyNameDB: RoomDatabase(){
     abstract fun getCompanyNameDAO() : CompanyNameDAO
+    abstract fun getInvest(): InvestDAO
+    abstract fun getTransaction(): TransactionDAO
     companion object {
         @Volatile
         private var INSTANCE: CompanyNameDB? = null

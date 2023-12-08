@@ -28,51 +28,5 @@ import com.example.minvest.MVVM.Data.CompanyName
 import com.example.minvest.MVVM.StockViewModel
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
-@Composable
-fun SearchField(modifier: Modifier, stockViewModel: StockViewModel, navController: NavController){
-    var text by remember{
-        mutableStateOf("")
-    }
-    var keyBoardController = LocalSoftwareKeyboardController.current
-    Row(modifier = modifier){
-        OutlinedTextField(
-            value = text,
-            onValueChange = {
-                text = it
-            },
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    stockViewModel.onSearch{ keyBoardController?.hide() }
-                }
-            )
-        )
-        IconButton(onClick = {
-            stockViewModel.onSearch{ keyBoardController?.hide() }
-        }) {
-            Icon(imageVector = Icons.Default.Search, contentDescription = "search")
-        }
-    }
-}
 
-@Composable
-fun SimpleCompanyCard(modifier: Modifier, companyName: CompanyName){
-    Card(modifier = modifier){
-        Column(horizontalAlignment = Alignment.CenterHorizontally){
-            Text("${companyName.name}", style = MaterialTheme.typography.titleMedium)
-            Text("${companyName.symbol}", style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ListOfCompany(modifier: Modifier, stockViewModel: StockViewModel, navController: NavController, symbol: String = "all"){
-    var cur = stockViewModel.currentCompanyName
-    if(symbol != "all" && symbol != "no"){
-        stockViewModel.getCompany(symbol)
-    }
-    if(symbol != "no"){
-
-    }
-}
