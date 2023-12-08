@@ -53,7 +53,8 @@ class MainActivity : ComponentActivity() {
                     var db = CompanyNameDB.getInstance(context)
                     var stockViewModel = StockViewModel(db)
 //                    ListOfCompany(stockViewModel = stockViewModel)
-                    CustomDialog()
+//                   ListOfCompany(stockViewModel = stockViewModel)
+//                    Testing(stockViewModel = stockViewModel)
                 }
             }
         }
@@ -61,6 +62,12 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@Composable
+fun Testing(stockViewModel: StockViewModel){
+    for(i in 1..10){
+        stockViewModel.testingResponse()
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

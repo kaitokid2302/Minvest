@@ -9,6 +9,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minvest.MVVM.Data.CompanyName
 import com.example.minvest.MVVM.Data.CompanyNameDB
 import com.example.minvest.MVVM.Network.Company
+import com.example.minvest.MVVM.Network.Credentials
+import com.example.minvest.MVVM.Network.Daum
 import com.example.minvest.MVVM.Network.Service
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,24 +21,52 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     var count = mutableStateOf(0)
     init{
         viewModelScope.launch {
-//            db.getCompanyNameDAO().deleteTable()
+            db.getCompanyNameDAO().deleteTable()
             var sizeCompany = db.getCompanyNameDAO().getSize()
             if (sizeCompany == 0) {
-                try {
-                    var cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName()
-                    var res = cur.data
-                    var count = 0
-                    res.forEach{
-                        addToRoomDatabase(CompanyName(symbol = it.symbol))
+                var cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
+                while(cur.isSuccessful==false){
+                    Credentials.changeToken()
+                    cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
+                }
+                if(cur.isSuccessful){
+                    var now = cur.body()
+                    if(now != null){
+                        now.data.forEach{
+                            addToRoomDatabase(it)
+                        }
                     }
-
-                } catch (e: Exception) {
-                    Log.d("lamdeptrai", e.message.toString())
                 }
             }
         }
     }
-    suspend fun addToRoomDatabase(company: CompanyName){
-        db.getCompanyNameDAO().insertName(company)
+
+    fun getCompanyName(it: Daum): CompanyName{
+        var a = CompanyName(symbol = it.symbol, name = it.name, currency = it.currency, exchange = it.exchange, micCode = it.micCode, country = it.country, type = it.type, price = 0);
+        return a
+    }
+    suspend fun addToRoomDatabase(it: Daum){
+        db.getCompanyNameDAO().insertName(getCompanyName(it))
+    }
+    fun testingResponse() {
+        viewModelScope.launch {
+            var cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
+            while(cur.isSuccessful==false){
+                Credentials.changeToken()
+                cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
+            }
+            if (cur.isSuccessful) {
+                var now = cur.body()
+                if (now != null) {
+//                    now.data.forEach {
+//                        addToRoomDatabase(it)
+//                    }
+                } else {
+                    Log.d("loi", cur.code().toString() + "loi")
+                }
+            } else {
+                Log.d("loi", cur.code().toString())
+            }
+        }
     }
 }

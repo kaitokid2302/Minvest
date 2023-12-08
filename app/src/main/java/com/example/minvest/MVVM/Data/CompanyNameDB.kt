@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CompanyName::class], version = 1)
+@Database(entities = [CompanyName::class], version = 2)
 abstract class CompanyNameDB: RoomDatabase(){
     abstract fun getCompanyNameDAO() : CompanyNameDAO
     companion object {
@@ -19,7 +19,7 @@ abstract class CompanyNameDB: RoomDatabase(){
                         context.applicationContext,
                         CompanyNameDB::class.java,
                         "Company_Name_DB"
-                    ).build()
+                    ).fallbackToDestructiveMigration().build()
                     INSTANCE = instance
                 }
                 return instance

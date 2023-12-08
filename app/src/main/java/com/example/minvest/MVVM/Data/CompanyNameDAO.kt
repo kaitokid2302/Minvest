@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,5 +20,8 @@ interface CompanyNameDAO {
     suspend fun getSize(): Int
 
     @Query("delete from CompanyName")
-    suspend fun deleteTable()adsfdas
+    suspend fun deleteTable()
+
+    @Update
+    suspend fun updatePrice(companyName: CompanyName)
 }
