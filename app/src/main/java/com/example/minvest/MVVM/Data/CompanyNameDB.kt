@@ -20,7 +20,7 @@ abstract class CompanyNameDB: RoomDatabase(){
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         CompanyNameDB::class.java,
-                        "Company_Name_DB"
+                        "Stock"
                     ).fallbackToDestructiveMigration().build()
                     INSTANCE = instance
                 }

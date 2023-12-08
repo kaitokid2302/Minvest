@@ -131,8 +131,6 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     init{
         viewModelScope.launch {
             var sizeCompany = db.getCompanyNameDAO().getSize()
-//            db.getCompanyNameDAO().deleteTable()
-            _init()
             if (sizeCompany == 0) {
                 var cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
                 Log.d("init", "lamdeptrai")

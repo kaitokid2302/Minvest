@@ -57,17 +57,6 @@ class MainActivity : ComponentActivity() {
                     var context = LocalContext.current
                     var db = CompanyNameDB.getInstance(context)
                     var stockViewModel = StockViewModel(db)
-                    stockViewModel.getCompanytoDisplay("")
-
-                    var navController = rememberNavController()
-                    NavHost(navController = navController, startDestination = "First Screen"){
-                        composable(route = "First Screen"){
-                            FirstScreen(stockViewModel = stockViewModel, navController = navController)
-                        }
-                        composable(route = "Second Screen"){
-                            SecondScreen(stockViewModel = stockViewModel, navController = navController)
-                        }
-                    }
                 }
             }
         }
