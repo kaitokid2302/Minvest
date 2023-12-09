@@ -62,6 +62,8 @@ dependencies {
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.11")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.33.2-alpha")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

@@ -19,18 +19,20 @@ interface CompanyNameDAO {
     @Query("select * from CompanyName where symbol=:symbol limit 1")
     suspend fun getCompany(symbol: String): CompanyName?
 
-    @Query("SELECT * FROM CompanyName WHERE symbol LIKE :symbol || '%'")
-    fun getCompanyCharacter(symbol: String): Flow<List<CompanyName>>
-
+    @Query("SELECT * FROM CompanyName WHERE symbol LIKE '%' || :text || '%' OR name LIKE '%' || :text || '%'")
+    fun getCompanyCharacter(text: String): Flow<List<CompanyName>>
     @Query("select Count(*) from CompanyName")
     suspend fun getSize(): Int
 
     @Query("delete from CompanyName")
     suspend fun deleteTable()
 
+    @Query("select * from CompanyName where id = :id")
+    fun findCompanyById(id: Int): CompanyName?
+
     @Update
     suspend fun updatePrice(companyName: CompanyName)
 
     @Query("select * from CompanyName where id=:id")
-    fun getCompanyById(id: Int): CompanyName
+    suspend fun getCompanyById(id: Int): CompanyName
 }

@@ -13,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.minvest.MVVM.Data.CompanyName
 import com.example.minvest.MVVM.Data.CompanyNameDB
 import com.example.minvest.MVVM.Data.Invest
+import com.example.minvest.MVVM.Data.RealObject.Link
 import com.example.minvest.MVVM.Data.Transaction
 import com.example.minvest.MVVM.Network.Credentials
 import com.example.minvest.MVVM.Network.Daum
@@ -23,6 +24,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class StockViewModel(var db: CompanyNameDB): ViewModel(){
     var _listCompany = db.getCompanyNameDAO().getAllName()
@@ -30,16 +33,12 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     lateinit var _invest: Flow<List<Invest>>
     lateinit var _transaction: Flow<List<Transaction>>
     var investList = mutableStateListOf<Invest>()
-    var transactionList = mutableStateListOf<Transaction>()
-    var investInterest = mutableStateMapOf<Invest, Int>()
-    var transactionInterest = mutableStateMapOf<Transaction, Int>()
-    var transactionOfInvest =  mutableStateMapOf<Invest, Set<Transaction>>()
 
     /// for variable
-
     var onSearch by mutableStateOf(false)
     var currenText by mutableStateOf("")
     var currentCompanyName = mutableStateListOf<CompanyName>()
+    var transactionList = mutableStateListOf<Link>()
 
     suspend fun getPriceBySymbol(symbol: String, companyName: CompanyName){
         viewModelScope.launch {
@@ -49,7 +48,7 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
                 cur = Service.companyName(Service.provideRetrofit()).getPrice(symbol = symbol)
             }
             Log.d("price", cur.body()?.price.toString())
-            var price = cur.body()?.price?.toFloat()
+            var price = cur.body()?.price?.toDouble()
 
             if (price != null) {
                 companyName.price = price
@@ -78,33 +77,23 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
 //            currentCompanyName = currentCompanyName
         }
     }
-    suspend fun reset(){
-        transactionOfInvest.clear()
-
-        // Cập nhật lại transactionOfInvest dựa trên dữ liệu mới nhất từ _invest và _transaction
-        investList.forEach { invest ->
-            viewModelScope.launch {
-                val transactions = db.getTransaction().getTransactionOfInvestment(invest.id)
-                transactions.collect{
-                    transactionOfInvest[invest] = it.toSet()
-                }
-            }
-        }
-    }
     suspend fun _init() {
         _invest = db.getInvest().allInvest()
         _transaction = db.getTransaction().allTransaction()
         viewModelScope.launch {
             _invest.collect {
                 investList.addAll(it)
-                reset()
             }
         }
         Log.d("first", "first")
         viewModelScope.launch {
-            _transaction.collect { transactions ->
-                transactionList.addAll(transactions)
-                reset()
+            _transaction.collect {transactions ->
+                transactionList.clear()
+                transactions.forEach {
+                    var company = db.getCompanyNameDAO().getCompanyById(it.company_id)
+                    var invest = db.getInvest().findInvest(it.invest_id)
+                    transactionList.add(Link(companyName = company, invest = invest, transaction = it))
+                }
             }
         }
 
@@ -153,7 +142,6 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
 //                    cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
 //                    Log.d("work", "${i}" + cur.code().toString())
 //                    Credentials.changeToken()
-//
 //                }
                 while(cur.code()!= 200){
                     Log.d("code", cur.code().toString() + " ${Credentials.cur}")
@@ -177,11 +165,44 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     }
 
     fun getCompanyName(it: Daum): CompanyName{
-        var a = CompanyName(symbol = it.symbol, name = it.name, currency = it.currency, exchange = it.exchange, micCode = it.micCode, country = it.country, type = it.type, price = 0.0f);
+        var a = CompanyName(symbol = it.symbol, name = it.name, currency = it.currency, exchange = it.exchange, micCode = it.micCode, country = it.country, type = it.type, price = 0.0);
         return a
     }
     suspend fun addToRoomDatabase(it: Daum){
         Log.d("times", "x")
         db.getCompanyNameDAO().insertName(getCompanyName(it))
+    }
+    fun sortBy(_sortBy: SortBy?){
+        viewModelScope.launch {
+            when(_sortBy){
+                SortBy.byPriceASC -> {
+                    currentCompanyName.sortBy{it.price}
+                }
+                SortBy.byPriceDES -> {
+                    currentCompanyName.sortByDescending { it.price }
+                }
+                SortBy.bySymbolASC -> {
+                    currentCompanyName.sortBy { it.symbol }
+                }
+                SortBy.bySymbolDES -> {
+                    currentCompanyName.sortByDescending { it.symbol }
+                }
+
+                else -> {
+
+                }
+            }
+        }
+    }
+    fun formatTimestamp(time: Long): String {
+        val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+        return sdf.format(time)
+    }
+    fun calculateInterest(link: Link): Double{
+        var previousPrice = link.transaction.previousPrice
+        var currentPrice = link.transaction.currentPrice
+        var quantity = link.transaction.quanity
+
+        return (currentPrice - previousPrice)*quantity
     }
 }

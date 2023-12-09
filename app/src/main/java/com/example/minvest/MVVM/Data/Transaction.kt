@@ -10,5 +10,7 @@ data class Transaction(
     var invest_id: Int,
     var company_id: Int,
     var quanity: Int,
-    var money: Int
+    var previousPrice: Double,
+    var currentPrice: Double,
+    var time: Long
 )
