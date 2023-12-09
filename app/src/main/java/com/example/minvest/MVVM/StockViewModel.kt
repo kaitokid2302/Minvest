@@ -51,17 +51,19 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             var price = cur.body()?.price?.toFloat()
 
             if (price != null) {
+                companyName.price = price
             }
+
             db.getCompanyNameDAO().updatePrice(companyName = companyName)
         }
     }
+
 
     fun getPrice(companyName: CompanyName){
         viewModelScope.launch {
             getPriceBySymbol(companyName.symbol, companyName)
         }
     }
-    /// for variable
 
     fun getCompanytoDisplay(text:String){
         Log.d("text", text)
@@ -69,7 +71,10 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             var cur = db.getCompanyNameDAO().getCompanyCharacter(text).first()
             currentCompanyName.clear()
             Log.d("size", cur.size.toString())
-            currentCompanyName = cur.toMutableList()
+            cur.forEach {
+                currentCompanyName.add(it)
+            }
+//            currentCompanyName = cur.toMutableList()
         }
     }
     suspend fun reset(){
@@ -86,14 +91,9 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     suspend fun _init() {
         _invest = db.getInvest().allInvest()
         _transaction = db.getTransaction().allTransaction()
-        try {
-            _invest.collect {
-                investList = it
-                reset()
-            }
-        }
-        catch (e: Exception){
-            Log.d("loi", e.message.toString())
+        _invest.collect {
+            investList = it
+            reset()
         }
 
         _transaction.collect { transactions ->
@@ -130,14 +130,27 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
 
     init{
         viewModelScope.launch {
+//            db.getCompanyNameDAO().deleteTable()
             var sizeCompany = db.getCompanyNameDAO().getSize()
+            viewModelScope.launch {
+                _init()
+            }
             if (sizeCompany == 0) {
                 var cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
                 Log.d("init", "lamdeptrai")
-                while(cur.isSuccessful==false){
+//                for(i in 0..Credentials.tokenArray.size - 1){
+//                    cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
+//                    Log.d("work", "${i}" + cur.code().toString())
+//                    Credentials.changeToken()
+//
+//                }
+                while(cur.code()!= 200){
+                    Log.d("code", cur.code().toString() + " ${Credentials.cur}")
                     Credentials.changeToken()
                     cur = Service.companyName(Service.provideRetrofit()).getAllCompanyName();
+
                 }
+                Log.d("credential", Credentials.token)
                 if(cur.isSuccessful){
                     var now = cur.body()
                     if(now != null){

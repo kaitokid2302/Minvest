@@ -14,5 +14,5 @@ data class CompanyName(
     val micCode: String,
     val country: String,
     val type: String,
-    val price: Float
+    var price: Float
 )

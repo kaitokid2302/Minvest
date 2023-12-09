@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
                     var context = LocalContext.current
                     var db = CompanyNameDB.getInstance(context)
                     var stockViewModel = StockViewModel(db)
+
                 }
             }
         }
