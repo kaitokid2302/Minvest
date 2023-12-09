@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,6 +43,7 @@ import com.example.minvest.MVVM.Data.CompanyNameDB
 import com.example.minvest.MVVM.StockViewModel
 import com.example.minvest.composable.FirstScreen
 import com.example.minvest.composable.SecondScreen
+import com.example.minvest.composable.ThirdScreen
 import com.example.minvest.ui.theme.MinvestTheme
 
 class MainActivity : ComponentActivity() {
@@ -57,7 +59,19 @@ class MainActivity : ComponentActivity() {
                     var context = LocalContext.current
                     var db = CompanyNameDB.getInstance(context)
                     var stockViewModel = StockViewModel(db)
-
+                    var navController = rememberNavController()
+                    stockViewModel.getCompanytoDisplay("")
+                    NavHost(navController = navController, startDestination = "First Screen"){
+                        composable(route = "First Screen"){
+                            FirstScreen(stockViewModel = stockViewModel, navController = navController)
+                        }
+                        composable(route = "Second Screen"){
+                            SecondScreen(stockViewModel = stockViewModel, navController = navController)
+                        }
+                        composable(route = "Third Screen"){
+                            ThirdScreen(stockViewModel = stockViewModel, navController = navController)
+                        }
+                    }
                 }
             }
         }

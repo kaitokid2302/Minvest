@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -25,20 +26,20 @@ import kotlinx.coroutines.launch
 
 class StockViewModel(var db: CompanyNameDB): ViewModel(){
     var _listCompany = db.getCompanyNameDAO().getAllName()
-    var listCompany by mutableStateOf<List<CompanyName>>(emptyList())
+    var listCompany = mutableStateListOf<CompanyName>()
     lateinit var _invest: Flow<List<Invest>>
     lateinit var _transaction: Flow<List<Transaction>>
-    var investList by mutableStateOf<List<Invest>>(emptyList())
-    var transactionList by mutableStateOf<List<Transaction>>(emptyList())
-    var investInterest by mutableStateOf<MutableMap<Invest, Int>>(mutableMapOf())
-    var transactionInterest by mutableStateOf<MutableMap<Transaction, Int>>(mutableMapOf())
-    var transactionOfInvest by mutableStateOf<MutableMap<Invest, Set<Transaction>>>(mutableMapOf())
+    var investList = mutableStateListOf<Invest>()
+    var transactionList = mutableStateListOf<Transaction>()
+    var investInterest = mutableStateMapOf<Invest, Int>()
+    var transactionInterest = mutableStateMapOf<Transaction, Int>()
+    var transactionOfInvest =  mutableStateMapOf<Invest, Set<Transaction>>()
 
     /// for variable
 
     var onSearch by mutableStateOf(false)
     var currenText by mutableStateOf("")
-    var currentCompanyName by mutableStateOf<MutableList<CompanyName>>(mutableListOf())
+    var currentCompanyName = mutableStateListOf<CompanyName>()
 
     suspend fun getPriceBySymbol(symbol: String, companyName: CompanyName){
         viewModelScope.launch {
@@ -71,10 +72,10 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             var cur = db.getCompanyNameDAO().getCompanyCharacter(text).first()
             currentCompanyName.clear()
             Log.d("size", cur.size.toString())
-            cur.forEach {
-                currentCompanyName.add(it)
-            }
+           currentCompanyName.addAll(cur)
+            Log.d("display", currentCompanyName.size.toString())
 //            currentCompanyName = cur.toMutableList()
+//            currentCompanyName = currentCompanyName
         }
     }
     suspend fun reset(){
@@ -83,27 +84,37 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
         // Cập nhật lại transactionOfInvest dựa trên dữ liệu mới nhất từ _invest và _transaction
         investList.forEach { invest ->
             viewModelScope.launch {
-                val transactions = db.getTransaction().getTransactionOfInvestment(invest.id).first()
-                transactionOfInvest[invest] = transactions.toSet()
+                val transactions = db.getTransaction().getTransactionOfInvestment(invest.id)
+                transactions.collect{
+                    transactionOfInvest[invest] = it.toSet()
+                }
             }
         }
     }
     suspend fun _init() {
         _invest = db.getInvest().allInvest()
         _transaction = db.getTransaction().allTransaction()
-        _invest.collect {
-            investList = it
-            reset()
+        viewModelScope.launch {
+            _invest.collect {
+                investList.addAll(it)
+                reset()
+            }
+        }
+        Log.d("first", "first")
+        viewModelScope.launch {
+            _transaction.collect { transactions ->
+                transactionList.addAll(transactions)
+                reset()
+            }
         }
 
-        _transaction.collect { transactions ->
-            transactionList = transactions
-            reset()
+        Log.d("second", "second")
+        viewModelScope.launch {
+            _listCompany.collect{
+                listCompany.addAll(it)
+            }
         }
-        _listCompany.collect{
-            listCompany = it
-        }
-        Log.d("secondinit", "secondinit")
+        Log.d("third", "third")
     }
 
     fun newInvest(invest: Invest){

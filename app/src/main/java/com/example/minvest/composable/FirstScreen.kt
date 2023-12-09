@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -71,7 +72,7 @@ fun FirstScreen(stockViewModel: StockViewModel, navController: NavController){
     var dialog by remember{
         mutableStateOf(false)
     }
-    var companyChoose by remember {
+    var companyChoose by remember{
         mutableStateOf<CompanyName?> (null)
     }
     Log.d("size", c.size.toString() + " ii " + stockViewModel.currentCompanyName.size.toString())
@@ -89,11 +90,12 @@ fun FirstScreen(stockViewModel: StockViewModel, navController: NavController){
                         dialog = true
                         companyChoose = it
                     })
-                if(dialog){
-                    DialogInfoStock(stockViewModel = stockViewModel, navController = navController, companyName = companyChoose!!)
-
-                }
             }
+        }
+        if(dialog){
+            DialogInfoStock(stockViewModel = stockViewModel, navController = navController, companyName = companyChoose!!, onDissmiss = {
+                dialog = false
+            })
         }
         Spacer(modifier = Modifier.weight(1f))
         BottomBar(stockViewModel = stockViewModel, navController = navController)
