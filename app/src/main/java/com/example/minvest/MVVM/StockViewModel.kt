@@ -62,7 +62,7 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             sortBy(currentSortByStock)
         }
     }
-
+// now
 
     fun getPrice(companyName: CompanyName){
         viewModelScope.launch {
