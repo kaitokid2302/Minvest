@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -39,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.minvest.MVVM.Data.CompanyName
 import com.example.minvest.MVVM.Data.RealObject.Link
@@ -47,36 +49,96 @@ import com.example.minvest.MVVM.StockViewModel
 
 
 @Composable
-fun CardTransaction(stockViewModel: StockViewModel, link: Link, modifier: Modifier = Modifier
-    .padding(5.dp)
-    .fillMaxWidth()
-    .height(110.dp)){
-    Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimaryContainer)){
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
-            /*
-            Company
-            date
-            buying price
-            selling price
-            quanity
-            interest
-             */
-            Text("${link.companyName.name}", style = MaterialTheme.typography.titleMedium)
-            Text("${stockViewModel.formatTimestamp(link.transaction.time)}", style = MaterialTheme.typography.bodySmall)
-            Text("Buying price: " + link.transaction.previousPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-            Text("Price now: " + link.transaction.currentPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-            Text("Quantity: " + link.transaction.quanity.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
-            var interest = stockViewModel.calculateInterest(link)
-            Row{
-                Text("Interest: " + interest.toString())
-                var tint = Color.Green
-                if(interest < 0.0) tint = Color.Red
-                Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = tint)
-            }
-
+fun SimpleCompanyCard(stockViewModel: StockViewModel, modifier: Modifier, companyName: CompanyName){
+    Card(modifier = modifier){
+        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()){
+            Text("${companyName.name}", style = MaterialTheme.typography.titleMedium)
+            Text("${companyName.symbol}", style = MaterialTheme.typography.bodySmall)
+            // company price style = MaterialTheme.typography.bodySmall, bold
+            Text("${companyName.price}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
         }
     }
 }
+
+@Composable
+fun DialogInfoStock(stockViewModel: StockViewModel, navController: NavController, companyName: CompanyName, onDissmiss: () -> Unit){
+    var display by remember{
+        mutableStateOf(true)
+    }
+    if(display) {
+        Dialog(onDismissRequest = {
+            display = false
+            onDissmiss()
+        }) {
+            Card(modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth()
+                .height(200.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimaryContainer)
+            ){
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()){
+                    Text("${companyName.name}", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                    Text("${companyName.symbol}", style = MaterialTheme.typography.bodySmall, color = Color.White)
+                    Text("Country: ${companyName.country}", style = MaterialTheme.typography.bodySmall, color = Color.White)
+                    Text("Exchange: ${companyName.exchange}", style = MaterialTheme.typography.bodySmall, color = Color.White)
+                    stockViewModel.getPrice(companyName = companyName)
+                    var currentElement = stockViewModel.listCompany.find {
+                        it == companyName
+                    }
+                    Text("Price: ${currentElement?.price ?: 0}", color = Color.White)
+                    Button(onClick = {
+                        display = false
+                        onDissmiss()
+                    }) {
+                        Text("OK")
+
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RadioButtonSort(sortBy: SortBy, selected: SortBy?, changeSelected: () -> Unit, modifier: Modifier){
+    Column(modifier = modifier){
+        RadioButton(selected = sortBy==selected, onClick = {
+            changeSelected()
+        })
+        when(sortBy){
+            SortBy.byPriceASC ->{
+                Row(){
+                    Text("Price")
+                    Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green)
+                }
+
+            }
+            SortBy.byPriceDES ->{
+                Row(){
+                    Text("Price")
+                    Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "down", tint = Color.Red)
+                }
+
+            }
+            SortBy.bySymbolASC -> {
+                Row(){
+                    Text("Symbol")
+                    Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green)
+                }
+            }
+            SortBy.bySymbolDES -> {
+                Row(){
+                    Text("Symbol")
+                    Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "down", tint = Color.Red)
+                }
+            }
+            else -> {
+
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SearchField(modifier: Modifier = Modifier.padding(5.dp), stockViewModel: StockViewModel, navController: NavController){
@@ -143,13 +205,17 @@ fun FirstScreen(stockViewModel: StockViewModel, navController: NavController){
         Spacer(modifier = Modifier.weight(1f))
         Row(modifier = Modifier.padding(3.dp).fillMaxWidth().height(ComposableSize.viewRadioButonHeight.dp)){
             SortBy::class.sealedSubclasses.forEach {
-                RadioButtonSort(it.objectInstance!!, selected, changeSelected = {
-                    selected = it.objectInstance!!
-                    stockViewModel.sortBy(selected)
-                }, modifier = Modifier.weight(1f))
+                if (it.objectInstance!! is SortBy.byInterestAsc || it.objectInstance!! is SortBy.byInterestDes) {
+                } else {
+                    RadioButtonSort(it.objectInstance!!, selected, changeSelected = {
+                        selected = it.objectInstance!!
+                        stockViewModel.sortBy(selected)
+                    }, modifier = Modifier.weight(1f))
+                }
             }
         }
         BottomBar(stockViewModel = stockViewModel, navController = navController)
     }
 
 }
+

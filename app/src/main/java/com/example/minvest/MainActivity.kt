@@ -42,6 +42,7 @@ import com.example.minvest.MVVM.Data.CompanyName
 import com.example.minvest.MVVM.Data.CompanyNameDB
 import com.example.minvest.MVVM.StockViewModel
 import com.example.minvest.composable.FirstScreen
+import com.example.minvest.composable.ListOfStock
 import com.example.minvest.composable.SecondScreen
 import com.example.minvest.composable.ThirdScreen
 import com.example.minvest.ui.theme.MinvestTheme
@@ -70,6 +71,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = "Third Screen"){
                             ThirdScreen(stockViewModel = stockViewModel, navController = navController)
+                        }
+                        composable(route = "List Of Stock"){
+                            ListOfStock(stockViewModel = stockViewModel, navController = navController)
                         }
                     }
                 }

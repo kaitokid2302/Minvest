@@ -28,7 +28,7 @@ interface CompanyNameDAO {
     suspend fun deleteTable()
 
     @Query("select * from CompanyName where id = :id")
-    fun findCompanyById(id: Int): CompanyName?
+    suspend fun findCompanyById(id: Int): CompanyName?
 
     @Update
     suspend fun updatePrice(companyName: CompanyName)

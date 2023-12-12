@@ -5,4 +5,7 @@ sealed class SortBy{
     object byPriceDES: SortBy()
     object bySymbolASC: SortBy()
     object bySymbolDES: SortBy()
+    object byInterestAsc: SortBy()
+
+    object byInterestDes: SortBy()
 }

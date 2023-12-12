@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,6 +14,9 @@ interface TransactionDAO {
 
     @Query("select * from `Transaction` order by id")
     fun allTransaction(): Flow<List<Transaction>>
+
+    @Update
+    suspend fun updateTransaction(transaction: Transaction)
 
     @Query("select * from `Transaction` where invest_id=:invest_id")
     fun getTransactionOfInvestment(invest_id: Int): Flow<List<Transaction>>

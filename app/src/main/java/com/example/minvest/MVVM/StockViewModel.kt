@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -39,7 +40,11 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     var currenText by mutableStateOf("")
     var currentCompanyName = mutableStateListOf<CompanyName>()
     var transactionList = mutableStateListOf<Link>()
-
+    var currentSortByStock by mutableStateOf<SortBy?>(null)
+    var currentSortByInterest by mutableStateOf<SortBy?>(null)
+    var totalInterestTransactions = mutableStateOf<Double>(0.0)
+    var currentInvest by mutableStateOf<Invest?>(null)
+    var currentShowDialogOfBuyStockForInvest by mutableStateOf(false)
     suspend fun getPriceBySymbol(symbol: String, companyName: CompanyName){
         viewModelScope.launch {
             var cur = Service.companyName(Service.provideRetrofit()).getPrice(symbol = symbol)
@@ -53,8 +58,8 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             if (price != null) {
                 companyName.price = price
             }
-
             db.getCompanyNameDAO().updatePrice(companyName = companyName)
+            sortBy(currentSortByStock)
         }
     }
 
@@ -75,13 +80,16 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             Log.d("display", currentCompanyName.size.toString())
 //            currentCompanyName = cur.toMutableList()
 //            currentCompanyName = currentCompanyName
+            sortBy(currentSortByStock)
         }
     }
     suspend fun _init() {
         _invest = db.getInvest().allInvest()
         _transaction = db.getTransaction().allTransaction()
         viewModelScope.launch {
+
             _invest.collect {
+                investList.clear()
                 investList.addAll(it)
             }
         }
@@ -90,10 +98,13 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             _transaction.collect {transactions ->
                 transactionList.clear()
                 transactions.forEach {
-                    var company = db.getCompanyNameDAO().getCompanyById(it.company_id)
-                    var invest = db.getInvest().findInvest(it.invest_id)
-                    transactionList.add(Link(companyName = company, invest = invest, transaction = it))
+                    viewModelScope.launch {
+                        var company = db.getCompanyNameDAO().getCompanyById(it.company_id)
+                        var invest = db.getInvest().findInvest(it.invest_id)
+                        transactionList.add(Link(companyName = company, invest = invest, transaction = it))
+                    }
                 }
+                sortBy(currentSortByInterest)
             }
         }
 
@@ -106,9 +117,9 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
         Log.d("third", "third")
     }
 
-    fun newInvest(invest: Invest){
+    fun newInvest(name: String){
         viewModelScope.launch {
-            db.getInvest().createNewInvest(invest)
+            db.getInvest().createNewInvest(Invest(name = name, interest = 0.0, date = System.currentTimeMillis()))
         }
     }
     fun deleteInvest(invest: Invest){
@@ -116,9 +127,9 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             db.getInvest().deleteInvest(invest)
         }
     }
-    fun newTransaction(transaction: Transaction){
+    fun newTransaction(invest: Invest, companyName: CompanyName, quantity: Int){
         viewModelScope.launch {
-            db.getTransaction().insertTransaction(transaction)
+            db.getTransaction().insertTransaction(Transaction(company_id = companyName.id, invest_id = invest.id, quanity = quantity, previousPrice = companyName.price, currentPrice = companyName.price, time = System.currentTimeMillis()))
         }
     }
     fun deleteTransaction(transaction: Transaction){
@@ -176,20 +187,35 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
         viewModelScope.launch {
             when(_sortBy){
                 SortBy.byPriceASC -> {
+                    currentSortByStock = SortBy.byPriceASC
                     currentCompanyName.sortBy{it.price}
                 }
                 SortBy.byPriceDES -> {
+                    currentSortByStock = SortBy.byPriceDES
                     currentCompanyName.sortByDescending { it.price }
                 }
                 SortBy.bySymbolASC -> {
+                    currentSortByStock = SortBy.bySymbolASC
                     currentCompanyName.sortBy { it.symbol }
                 }
                 SortBy.bySymbolDES -> {
+                    currentSortByStock = SortBy.bySymbolDES
                     currentCompanyName.sortByDescending { it.symbol }
                 }
 
+                SortBy.byInterestAsc -> {
+                    currentSortByInterest = SortBy.byInterestAsc
+                    transactionList.sortBy {
+                        calculateInterest(it)
+                    }
+                }
+                SortBy.byInterestDes -> {
+                    currentSortByInterest = SortBy.byInterestDes
+                    transactionList.sortByDescending {
+                        calculateInterest(it)
+                    }
+                }
                 else -> {
-
                 }
             }
         }
@@ -204,5 +230,52 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
         var quantity = link.transaction.quanity
 
         return (currentPrice - previousPrice)*quantity
+    }
+    fun resetAllTransactionPrice(){
+        viewModelScope.launch {
+            /// newInvest is investList copy
+            var newInvest = investList.toMutableList()
+            newInvest.forEach {
+                it.interest = 0.0
+            }
+            var _newTransactionList = transactionList.toMutableList()
+            // newTransactionList = _newTransactionList copy but get the transactions
+            var newTransactionList = _newTransactionList.map {
+                it.transaction
+            }
+            totalInterestTransactions.value = 0.0
+            newTransactionList.forEach {
+                var company = db.getCompanyNameDAO().getCompanyById(it.company_id)
+                var invest = db.getInvest().findInvest(it.invest_id)
+                var price = Service.companyName(Service.provideRetrofit()).getPrice(symbol = company.symbol)
+                while(price.isSuccessful==false){
+                    Credentials.changeToken()
+                    price = Service.companyName(Service.provideRetrofit()).getPrice(symbol = company.symbol)
+                 }
+                // create newIt exactily the same copy of it
+                var newIt = it.copy()
+                newIt.currentPrice = price.body()?.price?.toDouble() ?: 0.0
+                db.getTransaction().updateTransaction(newIt)
+                // find the invest that has the same id with newIt from newInvest
+                var cur = newInvest.find {invest ->  invest.id == newIt.invest_id}
+                // cur.interest += calculateInterest(Link(companyName = company, invest = invest, transaction = newIt))
+                // safe update cur?.interest = cur?.interest + calculateInterest(Link(companyName = company, invest = invest, transaction = newIt))
+                cur?.interest = cur?.interest?.plus(calculateInterest(Link(companyName = company, invest = invest, transaction = newIt)))!!
+                totalInterestTransactions.value += calculateInterest(Link(companyName = company, invest = invest, transaction = newIt))
+            }
+            newInvest.forEach {
+                db.getInvest().updateInvest(it)
+            }
+
+        }
+    }
+    fun convertToNumber(text: String): Int{
+        var res = 0
+        for(i in 0..text.length - 1){
+            if(text[i] in '0'..'9'){
+                res = res*10 + (text[i] - '0')
+            }
+        }
+        return res
     }
 }

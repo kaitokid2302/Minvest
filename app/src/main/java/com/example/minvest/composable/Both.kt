@@ -39,55 +39,6 @@ import com.example.minvest.MVVM.SortBy
 import com.example.minvest.MVVM.StockViewModel
 
 @Composable
-fun SimpleCompanyCard(stockViewModel: StockViewModel, modifier: Modifier, companyName: CompanyName){
-    Card(modifier = modifier){
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()){
-            Text("${companyName.name}", style = MaterialTheme.typography.titleMedium)
-            Text("${companyName.symbol}", style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
-
-@Composable
-fun DialogInfoStock(stockViewModel: StockViewModel, navController: NavController, companyName: CompanyName, onDissmiss: () -> Unit){
-    var display by remember{
-        mutableStateOf(true)
-    }
-    if(display) {
-        Dialog(onDismissRequest = {
-            display = false
-            onDissmiss()
-        }) {
-            Card(modifier = Modifier
-                .padding(5.dp)
-                .fillMaxWidth()
-                .height(200.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimaryContainer)
-            ){
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()){
-                    Text("${companyName.name}", style = MaterialTheme.typography.titleMedium, color = Color.White)
-                    Text("${companyName.symbol}", style = MaterialTheme.typography.bodySmall, color = Color.White)
-                    Text("Country: ${companyName.country}", style = MaterialTheme.typography.bodySmall, color = Color.White)
-                    Text("Exchange: ${companyName.exchange}", style = MaterialTheme.typography.bodySmall, color = Color.White)
-                    stockViewModel.getPrice(companyName = companyName)
-                    var currentElement = stockViewModel.listCompany.find {
-                        it == companyName
-                    }
-                    Text("Price: ${currentElement?.price ?: 0}", color = Color.White)
-                    Button(onClick = {
-                        display = false
-                        onDissmiss()
-                    }) {
-                        Text("OK")
-
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun BottomBar(stockViewModel: StockViewModel, navController: NavController){
     Row(modifier = Modifier.fillMaxWidth()){
         Button(onClick = { navController.navigate("First Screen") },
@@ -103,44 +54,6 @@ fun BottomBar(stockViewModel: StockViewModel, navController: NavController){
             Column(horizontalAlignment = Alignment.CenterHorizontally){
                 Text("My")
                 Text(" Transactions")
-
-            }
-        }
-    }
-}
-
-@Composable
-fun RadioButtonSort(sortBy: SortBy, selected: SortBy?, changeSelected: () -> Unit, modifier: Modifier){
-    Column(modifier = modifier){
-        RadioButton(selected = sortBy==selected, onClick = {
-            changeSelected()
-        })
-        when(sortBy){
-            SortBy.byPriceASC ->{
-                Row(){
-                    Text("Price")
-                    Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green)
-                }
-
-            }
-            SortBy.byPriceDES ->{
-                Row(){
-                    Text("Price")
-                    Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "down", tint = Color.Red)
-                }
-
-            }
-            SortBy.bySymbolASC -> {
-                Row(){
-                    Text("Symbol")
-                    Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green)
-                }
-            }
-            SortBy.bySymbolDES -> {
-                Row(){
-                    Text("Symbol")
-                    Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "down", tint = Color.Red)
-                }
 
             }
         }
