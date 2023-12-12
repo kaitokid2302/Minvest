@@ -69,6 +69,7 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             getPriceBySymbol(companyName.symbol, companyName)
         }
     }
+    //
 
     fun getCompanytoDisplay(text:String){
         Log.d("text", text)
