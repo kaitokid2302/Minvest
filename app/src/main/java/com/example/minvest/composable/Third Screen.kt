@@ -61,6 +61,7 @@ fun CardTransaction(stockViewModel: StockViewModel, link: Link, modifier: Modifi
             Text("${stockViewModel.formatTimestamp(link.transaction.time)}", style = MaterialTheme.typography.bodySmall, color = Color.White)
             Text("Buying price: " + link.transaction.previousPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
             Text("Price now: " + link.transaction.currentPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(text = "Spend: " + (link.transaction.previousPrice * link.transaction.quanity).toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
             Text("Quantity: " + link.transaction.quanity.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
             var interest = stockViewModel.calculateInterest(link)
             Row{
@@ -142,3 +143,4 @@ fun ThirdScreen(stockViewModel: StockViewModel, navController: NavController){
             BottomBar(stockViewModel = stockViewModel, navController = navController)
         }
 }
+// finish all

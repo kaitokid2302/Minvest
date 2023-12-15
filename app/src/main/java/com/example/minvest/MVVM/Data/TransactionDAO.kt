@@ -3,6 +3,7 @@ package com.example.minvest.MVVM.Data
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -25,4 +26,7 @@ interface TransactionDAO {
 
     @Query("delete from `Transaction` where invest_id = :invest_id")
     suspend fun deleteInvest(invest_id: Int)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAlTransaction(invests: List<Transaction>)
 }

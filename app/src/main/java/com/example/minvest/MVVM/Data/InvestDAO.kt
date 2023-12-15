@@ -3,6 +3,7 @@ package com.example.minvest.MVVM.Data
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -22,4 +23,7 @@ interface InvestDAO {
     suspend fun findInvest(id: Int): Invest
     @Update
     suspend fun updateInvest(invest: Invest)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllInvest(invests: List<Invest>)
 }

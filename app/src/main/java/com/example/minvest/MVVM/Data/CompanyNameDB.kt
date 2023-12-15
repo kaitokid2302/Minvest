@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [CompanyName::class, Invest::class, Transaction::class], version = 8)
+@Database(entities = [CompanyName::class, Invest::class, Transaction::class], version = 4)
 abstract class CompanyNameDB: RoomDatabase(){
     abstract fun getCompanyNameDAO() : CompanyNameDAO
     abstract fun getInvest(): InvestDAO

@@ -65,9 +65,14 @@ import java.time.format.TextStyle
 fun BuyStockDialog(stockViewModel: StockViewModel, navController: NavController, companyName: CompanyName, invest: Invest, onDismiss: () -> Unit){
     var showDialog by remember { mutableStateOf(true) }
     var quantity by remember { mutableStateOf("") }
-    var total = 0.0
-    stockViewModel.getPrice(companyName)
+    var total  by remember { mutableStateOf(0.0) }
+    var price by remember { mutableStateOf(0.0) }
     if(showDialog){
+        stockViewModel.getPrice(companyName)
+        var currentElement = stockViewModel.listCompany.find {
+            it == companyName
+        }
+        price = currentElement!!.price
         Dialog(onDismissRequest = {
             showDialog = false
             onDismiss()
@@ -88,13 +93,13 @@ fun BuyStockDialog(stockViewModel: StockViewModel, navController: NavController,
                     // text of company symbol
                     Text("${companyName.symbol}", style = MaterialTheme.typography.bodySmall, color = Color.White)
 
-                    Text("${companyName.price}", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                    Text("${stockViewModel.fourDecimalDigit(price)}", style = MaterialTheme.typography.titleMedium, color = Color.White)
                     // text of quantity*price(total)
 
-                    if(quantity != ""){
-                        total = stockViewModel.convertToNumber(quantity) * companyName.price
-                        Text("Total: " + total.toString(), style = MaterialTheme.typography.bodySmall, color = Color.White)
-                    }
+                    total = stockViewModel.convertToNumber(quantity) * price
+                    total = stockViewModel.fourDecimalDigit(total)
+                    Text("Total: " + total.toString(), style = MaterialTheme.typography.bodySmall, color = Color.White)
+
 
                     /// outline text field of quantity, only number are allow
                     OutlinedTextField(
@@ -170,11 +175,15 @@ fun CompanyCard(stockViewModel: StockViewModel, navController: NavController, co
 
 @Composable
 fun ListOfStock(stockViewModel: StockViewModel, navController: NavController){
+
     var selected by remember{
         mutableStateOf<SortBy?> (null)
     }
     var currentSelectedCompany by remember{
         mutableStateOf<CompanyName?>(null)
+    }
+    var isSelected by remember{
+        mutableStateOf(false)
     }
     Column(modifier = Modifier
         .padding(5.dp)
@@ -184,7 +193,6 @@ fun ListOfStock(stockViewModel: StockViewModel, navController: NavController){
         }
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
             SearchField(stockViewModel = stockViewModel, navController = navController)
-
         }
         LazyColumn(modifier = Modifier
             .padding(5.dp)
@@ -193,6 +201,7 @@ fun ListOfStock(stockViewModel: StockViewModel, navController: NavController){
             {
                 CompanyCard(stockViewModel = stockViewModel, navController = navController, companyName = it, invest = stockViewModel.currentInvest!!){
                     currentSelectedCompany = it
+                    isSelected = true
                 }
             }
         }
@@ -214,8 +223,8 @@ fun ListOfStock(stockViewModel: StockViewModel, navController: NavController){
         Button(onClick = {navController.popBackStack()}, modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text("OK")
         }
-        if(currentSelectedCompany != null){
-            BuyStockDialog(stockViewModel = stockViewModel, navController = navController, companyName = currentSelectedCompany!!, invest = stockViewModel.currentInvest!!, onDismiss = {currentSelectedCompany = null})
+        if(isSelected){
+            BuyStockDialog(stockViewModel = stockViewModel, navController = navController, companyName = currentSelectedCompany!!, invest = stockViewModel.currentInvest!!, onDismiss = {isSelected = false})
         }
     }
 
@@ -279,7 +288,7 @@ fun SimpleTransactionCard(stockViewModel: StockViewModel, navController: NavCont
 
 @Composable
 fun DetailOfInvest(stockViewModel: StockViewModel, navController: NavController, invest: Invest, onDismiss: () -> Unit){
-    stockViewModel.resetAllTransactionPrice()
+
     var showDialog by remember { mutableStateOf(true) }
     if(showDialog){
         Dialog(onDismissRequest = {
@@ -288,7 +297,8 @@ fun DetailOfInvest(stockViewModel: StockViewModel, navController: NavController,
         }) {
             Card(modifier = Modifier
                 .padding(3.dp)
-                .height(500.dp).width(600.dp),
+                .height(500.dp)
+                .width(600.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondaryContainer)){
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier
                     .padding(7.dp)
@@ -299,12 +309,15 @@ fun DetailOfInvest(stockViewModel: StockViewModel, navController: NavController,
                     Text("${invest.name}", style = MaterialTheme.typography.titleMedium, color = Color.White)
                     var date = stockViewModel.formatTimestamp(invest.date)
                     Text("$date", style = MaterialTheme.typography.bodySmall,  color = Color.White)
-                    Text("${invest.interest}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold,  color = Color.White)
+                    Text("${stockViewModel.fourDecimalDigit(invest.interest)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold,  color = Color.White)
                     // LazyVerticalGrid 3 column of transaction, belong to this invest: modifier = Modifier.padding(2.dp).weight(1f)
                     LazyVerticalGrid(columns = GridCells.Fixed(2), modifier = Modifier
                         .padding(2.dp)
                         .weight(1f)){
-                        items(stockViewModel.transactionList){
+                        val filterList = stockViewModel.transactionList.filter {
+                            it.invest == invest
+                        }
+                        items(filterList){
                             if(it.invest==invest){
                                 SimpleTransactionCard(stockViewModel = stockViewModel, navController = navController, link = it)
                             }
@@ -333,7 +346,7 @@ fun DetailOfInvest(stockViewModel: StockViewModel, navController: NavController,
 }
 
 @Composable
-fun SimpleCardOfInvest(stockViewModel: StockViewModel, navController: NavController, invest: Invest){
+fun SimpleCardOfInvest(stockViewModel: StockViewModel, navController: NavController, invest: Invest, onClick: () -> Unit){
     var showDetail by remember { mutableStateOf(false) }
     Card(modifier = Modifier
         .padding(3.dp)
@@ -344,13 +357,15 @@ fun SimpleCardOfInvest(stockViewModel: StockViewModel, navController: NavControl
                 // Invest Name: Medium typography, bold
                 // date: small typography
                 // interest: small typography, bold
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f).clickable {
-                    showDetail = true
-                }){
+                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        showDetail = true
+                    }){
                     Text("${invest.name}", style = MaterialTheme.typography.titleMedium)
                     var date = stockViewModel.formatTimestamp(invest.date)
                     Text("$date", style = MaterialTheme.typography.bodySmall)
-                    Text("${invest.interest}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    Text("${stockViewModel.fourDecimalDigit(invest.interest)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                     // LazyVerticalGrid 3 column of transaction, belong to this invest: modifier = Modifier.padding(2.dp).weight(1f)
                     // simple delete button, icon of delete
 
@@ -440,6 +455,7 @@ fun CreateInvest(stockViewModel: StockViewModel, navController: NavController, o
 }
 @Composable
 fun SecondScreen(stockViewModel: StockViewModel, navController: NavController) {
+    stockViewModel.getCompanytoDisplay("")
     var createInvest by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.padding(5.dp),
@@ -451,7 +467,10 @@ fun SecondScreen(stockViewModel: StockViewModel, navController: NavController) {
                 SimpleCardOfInvest(
                     stockViewModel = stockViewModel,
                     navController = navController,
-                    invest = invest
+                    invest = invest,
+                    onClick = {
+                        stockViewModel.resetAllTransactionPrice()
+                    }
                 )
             }
         }
