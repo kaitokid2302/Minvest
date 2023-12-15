@@ -1,5 +1,6 @@
 package com.example.minvest.composable
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
@@ -19,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -48,27 +51,32 @@ fun CardTransaction(stockViewModel: StockViewModel, link: Link, modifier: Modifi
     .fillMaxWidth()
     .height(110.dp)){
     Card(modifier = modifier, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimaryContainer)){
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()){
-            /*
-            Company
-            date
-            buying price
-            selling price
-            quanity
-            interest
-             */
-            Text("${link.companyName.name}", style = MaterialTheme.typography.titleMedium)
-            Text("${stockViewModel.formatTimestamp(link.transaction.time)}", style = MaterialTheme.typography.bodySmall, color = Color.White)
-            Text("Buying price: " + link.transaction.previousPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
-            Text("Price now: " + link.transaction.currentPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
-            Text(text = "Spend: " + (link.transaction.previousPrice * link.transaction.quanity).toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
-            Text("Quantity: " + link.transaction.quanity.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
-            var interest = stockViewModel.calculateInterest(link)
-            Row{
-                Text("Interest: " + interest.toString(), color = Color.White)
-                var tint = Color.Green
-                if(interest < 0.0) tint = Color.Red
-                Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = tint)
+        Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)){
+                /*
+                Company
+                date
+                buying price
+                selling price
+                quanity
+                interest
+                 */
+                Text("${link.companyName.name}", style = MaterialTheme.typography.titleMedium)
+                Text("${stockViewModel.formatTimestamp(link.transaction.time)}", style = MaterialTheme.typography.bodySmall, color = Color.White)
+                Text("Buying price: " + link.transaction.previousPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Price now: " + link.transaction.currentPrice.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "Spend: " + stockViewModel.fourDecimalDigit(link.transaction.previousPrice * link.transaction.quanity).toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Quantity: " + link.transaction.quanity.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold, color = Color.White)
+                var interest = stockViewModel.calculateInterest(link)
+                Row{
+                    Text("Interest: " + stockViewModel.fourDecimalDigit(interest).toString(), color = Color.White)
+                    var tint = Color.Green
+                    if(interest < 0.0) tint = Color.Red
+                    Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = tint)
+                }
+            }
+            IconButton(onClick = { stockViewModel.deleteTransaction(link.transaction) }) {
+                Icon(imageVector = Icons.Default.Delete, contentDescription = "delete", tint = Color.White)
             }
         }
     }
@@ -125,7 +133,20 @@ fun ThirdScreen(stockViewModel: StockViewModel, navController: NavController){
         Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {stockViewModel.resetAllTransactionPrice()}) {
             Icon(imageVector = Icons.Default.Refresh, contentDescription = "refresh")
         }
-        Text("Total interest: " + stockViewModel.totalInterestTransactions.value.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()){
+            Text("Total interest: " + stockViewModel.fourDecimalDigit(stockViewModel.totalInterestTransactions.value).toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            if(stockViewModel.totalInterestTransactions.value < 0.0) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = "down",
+                    tint = Color.Red,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+            }
+            else{
+                Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green, modifier = Modifier.align(Alignment.CenterVertically))
+            }
+        }
             Row(modifier = Modifier
                 .padding(3.dp)
                 .height(ComposableSize.viewRadioButonHeight.dp)){

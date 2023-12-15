@@ -84,7 +84,7 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
             Log.d("display", currentCompanyName.size.toString())
 //            currentCompanyName = cur.toMutableList()
 //            currentCompanyName = currentCompanyName
-//            sortBy(currentSortByStock)
+            sortBy(currentSortByStock)
         }
     }
     suspend fun _init() {
@@ -139,6 +139,7 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
     }
     fun deleteTransaction(transaction: Transaction){
         viewModelScope.launch {
+            totalInterestTransactions.value -= (transaction.currentPrice - transaction.previousPrice)*transaction.quanity
             db.getTransaction().deleteTransaction(transaction)
         }
     }
@@ -176,6 +177,13 @@ class StockViewModel(var db: CompanyNameDB): ViewModel(){
                     }
                     currentCompanyName.clear()
                     currentCompanyName.addAll(db.getCompanyNameDAO().getAllName().first())
+                }
+            }
+            else{
+                totalInterestTransactions.value = 0.0
+                var allInvest = db.getInvest().allInvest().first()
+                allInvest.forEach {
+                    totalInterestTransactions.value += it.interest
                 }
             }
         }

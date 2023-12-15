@@ -21,6 +21,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -236,7 +238,7 @@ fun SimpleTransactionCard(stockViewModel: StockViewModel, navController: NavCont
     Card(
         modifier = Modifier
             .padding(2.dp)
-            .height(120.dp),
+            .height(140.dp),
         // color for this card
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.tertiary)
     ) {
@@ -258,11 +260,13 @@ fun SimpleTransactionCard(stockViewModel: StockViewModel, navController: NavCont
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Red
             )
+            var color = Color.Green
+            if (interest < 0.0) color = Color.Red
             Text(
-                text = "Total interest $interest",
+                text = "Total interest ${stockViewModel.fourDecimalDigit(interest)}",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Bold,
-                color = Color.Red
+                color = color
             )
             Text(
                 text = "${stockViewModel.formatTimestamp(link.transaction.time)}",
@@ -282,6 +286,12 @@ fun SimpleTransactionCard(stockViewModel: StockViewModel, navController: NavCont
                 text = "Price now: " + "${link.transaction.currentPrice}",
                 style = MaterialTheme.typography.bodySmall
             )
+            if(interest >= 0.0){
+                Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green)
+            }
+            else{
+                Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "down", tint = Color.Red)
+            }
         }
     }
 }
@@ -297,7 +307,7 @@ fun DetailOfInvest(stockViewModel: StockViewModel, navController: NavController,
         }) {
             Card(modifier = Modifier
                 .padding(3.dp)
-                .height(500.dp)
+                .height(540.dp)
                 .width(600.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondaryContainer)){
                 Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier
@@ -365,7 +375,15 @@ fun SimpleCardOfInvest(stockViewModel: StockViewModel, navController: NavControl
                     Text("${invest.name}", style = MaterialTheme.typography.titleMedium)
                     var date = stockViewModel.formatTimestamp(invest.date)
                     Text("$date", style = MaterialTheme.typography.bodySmall)
-                    Text("${stockViewModel.fourDecimalDigit(invest.interest)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center){
+                        Text("${stockViewModel.fourDecimalDigit(invest.interest)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                        if(invest.interest >= 0.0){
+                            Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green)
+                        }
+                        else{
+                            Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "down", tint = Color.Red)
+                        }
+                    }
                     // LazyVerticalGrid 3 column of transaction, belong to this invest: modifier = Modifier.padding(2.dp).weight(1f)
                     // simple delete button, icon of delete
 
@@ -475,7 +493,16 @@ fun SecondScreen(stockViewModel: StockViewModel, navController: NavController) {
             }
         }
         Spacer(modifier = Modifier.weight(1f))
-        Text("Total interest: " + stockViewModel.totalInterestTransactions.value.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.align(Alignment.CenterHorizontally))
+        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()){
+            Text("Total interest: " + stockViewModel.fourDecimalDigit(stockViewModel.totalInterestTransactions.value).toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            if(stockViewModel.totalInterestTransactions.value >= 0.0){
+                Icon(imageVector = Icons.Default.KeyboardArrowUp, contentDescription = "up", tint = Color.Green)
+            }
+            else{
+                Icon(imageVector = Icons.Default.KeyboardArrowDown, contentDescription = "down", tint = Color.Red)
+            }
+
+        }
 
         Row(modifier = Modifier.padding(3.dp)) {
             Button(onClick = {
