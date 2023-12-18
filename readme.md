@@ -111,6 +111,7 @@ Người dùng chọn số lượng cổ phiếu muốn mua, nhỏ nhất là 1 
 | Red           | rgb(255, 0, 0)| <div style="width:20px;height:20px;background-color:rgb(255, 0, 0);"></div> |
 
 ## Kiến trúc hệ thống
+![Alt text](architecture.png)
 ### Ngăn xếp công nghệ
 Kotlin - ngôn ngữ lập trình chính
 Android Studio - IDE
@@ -149,9 +150,26 @@ Gradle - hệ thống quản lý phụ thuộc
 
 
 ### Cấu trúc cơ sở dữ liệu
-**Mô tả tên miền**
 **Inforlogical model**
+![Alt text](inforlogicalmodel.png)
+
 **Data model**
-### Thuật toán
-**Thuật toán 1** 
-**Thuật toán 2**
+![Alt text](datamodel.png)
+
+## Mô tả thực hiện
+
+Trong dự án này, tôi dùng kiến trúc MVVM và Jetpack Compose để triển khai. 
++ Directory Composable: là nơi chứa các thành phần cho UI. Directory Data là nơi chứa các entity, các phương thức Dao, và Database.  
++ Directory Network: Là nơi chứa các phương thức để gọi API. 1 Class để chứa thông tin thu được từ Json khi gọi API, dùng thư viện Retrofit để truy vấn mạng và Moshi để chuyển đổi Json sang object.
++ file StockViewModel: Đây là viewmodel theo mô hình MVVM, nơi thao tác với các logic của ứng dụng, và gọi các phương thức để truy vấn cơ sở dữ liệu, và gọi API.
++ Directory res: Là nơi chứa toàn bộ resources cho ứng dụng, bao gồm các hình ảnh, các strings, color, style, ...
++ File sortBy: Đây là 1 sealed class, chứa các trường để sắp xếp các cổ phiếu theo tên, giá, lợi nhuận, giảm dần hoặc tăng dần.
++ Tệp android manifest: Đây là tệp quan trọng nhất của ứng dụng, chứa các thông tin về ứng dụng, như tên ứng dụng, phiên bản, các quyền truy cập(mạng, cơ sở dữ liệu, ...), các activity, các service, ...
+
+## Kiểm thử
+Ở đây, tôi dùng junit để kiểm thử, dùng để kiểm tra xem có gọi API chính xác không.
+![Alt text](testing1.png)
+![Alt text](testing2.png)
+
+## Kết luận
+Thông qua dự án này, tôi đã học được khá nhiều thứ, như kiến trúc MVVM, Clean Architecture, Jetpack Compose, Room, Retrofit, Moshi, Junit, ... và cũng đã có thể hoàn thành dự án. Tuy nhiên, vì thời gian có hạn, Nhiều chức năng vẫn còn dừng lại ở mức độ cơ bản. Dù vậy, tôi vẫn rất hài lòng với kết quả của dự án này, app đã hoạt động tốt, và có thể đáp ứng được các yêu cầu của người dùng. Tôi vẫn duy trì được thời gian để hoành thành dự án, trong 3 tháng. Mong sẽ có cơ hội được tiếp tục phát triển dự án này trong tương lai. Cảm ơn và xin chào.
