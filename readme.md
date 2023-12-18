@@ -138,8 +138,16 @@ Gradle - hệ thống quản lý phụ thuộc
 2. TÌm kiếm cổ phiếu theo tên công ty hoặc mã cổ phiếu, danh sách sẽ cập nhật ngay trong lúc người dùng nhập, không cần ấn nút enter hoặc nút tìm kiếm
 3. Xoá 1 khoản đầu tư, xoá 1 giao dịch
 4. Tạo 1 khoản đầu tư, mua cổ phiếu
+     
 **Quy trình kinh doanh**
+1. Cập nhật dữ liệu. 
+2. Phân tích danh mục đầu tư, giao dịch của người dùng
+3. Tổng hợp các thông tin về lợi nhuận của các khoản đầu tư, lợi nhuận của các giao dịch theo các tiêu chí khác nhau
+
 ### Yêu cầu bảo mật
+Ứng dụng sẽ không thu thập bất kỳ dữ liệu nào của người dùng, và toàn bộ dữ liệu về các khoản đầu tư chỉ được lưu trữ trên thiết bị của người dùng và không được chia sẻ với bất kỳ ai khác.
+
+
 ### Cấu trúc cơ sở dữ liệu
 **Mô tả tên miền**
 **Inforlogical model**
