@@ -137,8 +137,8 @@ Gradle - hệ thống quản lý phụ thuộc
 1. Cập nhật dữ liệu về danh mục các khoản đầu tư, lịch sử các giao dịch, và lợi nhuận của các khoản đầu tư, lợi nhuận của các giao dịch
 2. TÌm kiếm cổ phiếu theo tên công ty hoặc mã cổ phiếu, danh sách sẽ cập nhật ngay trong lúc người dùng nhập, không cần ấn nút enter hoặc nút tìm kiếm
 3. Xoá 1 khoản đầu tư, xoá 1 giao dịch
-4. Tạo 1 khoản đầu tư, mua cổ phiếu
-     
+4. Tạo 1 khoản đầu tư, mua cổ phiếu  
+
 **Quy trình kinh doanh**
 1. Cập nhật dữ liệu. 
 2. Phân tích danh mục đầu tư, giao dịch của người dùng
