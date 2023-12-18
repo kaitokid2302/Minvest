@@ -101,3 +101,50 @@ Người dùng có thể xem lịch sử các giao dịch của mình, và xem l
 **Hình 7** Mua cổ phiếu
 Người dùng chọn số lượng cổ phiếu muốn mua, nhỏ nhất là 1 cổ phiếu, tổng chi phí sẽ được hiển thị, và người dùng có thể mua cổ phiếu bằng cách chạm vào nút mua. Nếu người dùng đổi ý thì có thể chạm vào nút hủy để hủy giao dịch, hoặc có thể chạm vào bất kỳ đâu để đóng cửa sổ mua cổ phiếu.
 
+**Bộ chọn màu**
+
+| Name of Color | RGB           | Color Sample |
+| ------------- | ------------- | ------------ |
+| Green         | rgb(3, 255, 7)| <div style="width:20px;height:20px;background-color:rgb(3, 255, 7);"></div> |
+| Dark Blue     | rgb(0, 102, 139)| <div style="width:20px;height:20px;background-color:rgb(0, 102, 139);"></div> |
+| White         | rgb(252, 252, 255)| <div style="width:20px;height:20px;background-color:rgb(252, 252, 255);"></div> |
+| Light Grey    | rgb(220, 227, 233)| <div style="width:20px;height:20px;background-color:rgb(220, 227, 233);"></div> |
+| Red           | rgb(255, 0, 0)| <div style="width:20px;height:20px;background-color:rgb(255, 0, 0);"></div> |
+
+## Kiến trúc hệ thống
+### Ngăn xếp công nghệ
+Kotlin - ngôn ngữ lập trình chính
+Android Studio - IDE
+Retrofit - thư viện để gọi API
+Room - thư viện để tương tác với cơ sở dữ liệu
+Moshi - thư viện để chuyển đổi JSON sang object
+Git - hệ thống quản lý phiên bản
+Gradle - hệ thống quản lý phụ thuộc
+
+
+### Các lớp của hệ thống
+**Trải nghiệm người dùng và điều khiển**
+1. Nhấp vào nút tìm kiếm
+2. Nhấp vào nút sắp xếp, theo tên, lợi nhuận, giá, giảm dần hoặc tăng dần
+3. Nhấp vào 1 công ty
+4. Xem giá cổ phiếu của công ty đó
+5. Xem danh mục các khoản đầu tư và dữ liệu của các khoản đầu tư đó
+6. Xem lịch sử các giao dịch
+7. Ấn vào nút tạo khoản đầu tư
+8. Ấn vào nút mua cổ phiếu
+9. Xoá 1 khoản đầu tư, xoá 1 giao dịch
+   
+**Tương tác với cơ sở dữ liệu**
+1. Cập nhật dữ liệu về danh mục các khoản đầu tư, lịch sử các giao dịch, và lợi nhuận của các khoản đầu tư, lợi nhuận của các giao dịch
+2. TÌm kiếm cổ phiếu theo tên công ty hoặc mã cổ phiếu, danh sách sẽ cập nhật ngay trong lúc người dùng nhập, không cần ấn nút enter hoặc nút tìm kiếm
+3. Xoá 1 khoản đầu tư, xoá 1 giao dịch
+4. Tạo 1 khoản đầu tư, mua cổ phiếu
+**Quy trình kinh doanh**
+### Yêu cầu bảo mật
+### Cấu trúc cơ sở dữ liệu
+**Mô tả tên miền**
+**Inforlogical model**
+**Data model**
+### Thuật toán
+**Thuật toán 1** 
+**Thuật toán 2**
