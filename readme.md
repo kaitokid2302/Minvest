@@ -50,36 +50,35 @@
 
 ### Bố cục giao diện
 <div style="display: flex; flex-wrap: wrap;">
-    <figure>
+    <figure style="display: inline-block; text-align: center;">
         <img src="image1.png" alt="Alt text" width="200"/>
         <figcaption><i>Image 1</i></figcaption>
     </figure>
-    <figure>
+    <figure style="display: inline-block; text-align: center;">
         <img src="image2.png" alt="Alt text" width="200"/>
         <figcaption><i>Image 2</i></figcaption>
     </figure>
-    <figure>
+    <figure style="display: inline-block; text-align: center;">
         <img src="image3.png" alt="Alt text" width="200"/>
         <figcaption><i>Image 3</i></figcaption>
     </figure>
-    <figure>
+    <figure style="display: inline-block; text-align: center;">
         <img src="image4.png" alt="Alt text" width="200"/>
         <figcaption><i>Image 4</i></figcaption>
     </figure>
-    <figure>
+    <figure style="display: inline-block; text-align: center;">
         <img src="image5.png" alt="Alt text" width="200"/>
         <figcaption><i>Image 5</i></figcaption>
     </figure>
-    <figure>
+    <figure style="display: inline-block; text-align: center;">
         <img src="image6.png" alt="Alt text" width="200"/>
         <figcaption><i>Image 6</i></figcaption>
     </figure>
-    <figure>
+    <figure style="display: inline-block; text-align: center;">
         <img src="image7.png" alt="Alt text" width="200"/>
         <figcaption><i>Image 7</i></figcaption>
     </figure>
 </div>
-
 **Hình 1** Trang chính của ứng dụng
 Người dùng sẽ được thấy danh sách các cổ phiếu và công ty tương ứng, ở đây, người dụng có thể sắp xếp theo tên, giá, hoặc tìm kiếm theo tên công ty hoặc mã cổ phiếu.
 
