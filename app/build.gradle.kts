@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
     id("com.google.devtools.ksp").version("1.6.10-1.0.4")
+    id("org.jetbrains.dokka") version "1.9.10"
 }
 
 android {
@@ -88,5 +89,7 @@ dependencies {
 
     ksp("com.squareup.moshi:moshi-kotlin-codegen:1.14.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+    dokkaPlugin("org.jetbrains.dokka:android-documentation-plugin:1.9.10")
+
 }
 
